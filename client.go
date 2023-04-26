@@ -10,7 +10,7 @@ import (
 
 	"github.com/dunglas/httpsfv"
 
-	"github.com/lucas-clemente/quic-go/http3"
+	"github.com/quic-go/quic-go/http3"
 )
 
 type Client struct {
@@ -33,7 +33,7 @@ func NewClient(tlsConf *tls.Config, masqueServer *net.UDPAddr) *Client {
 // Connect establishes a PacketConn to addr,
 // proxied via MASQUE server using the MASQUE protocol.
 func (c *Client) Connect(addr *net.UDPAddr) (net.PacketConn, error) {
-	url, err := url.Parse("masque://" + c.server.String() + "/")
+	url, err := url.Parse("https://" + c.server.String() + "/")
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (c *Client) Connect(addr *net.UDPAddr) (net.PacketConn, error) {
 		return nil, err
 	}
 	req.Header.Add(flowIDHeader, v)
-	rsp, err := c.rt.RoundTripOpt(req, http3.RoundTripOpt{SkipSchemeCheck: true})
+	rsp, err := c.rt.RoundTripOpt(req, http3.RoundTripOpt{OnlyCachedConn: false})
 	if err != nil {
 		return nil, err
 	}
